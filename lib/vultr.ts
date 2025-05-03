@@ -70,10 +70,10 @@ export async function getAvailableRegions(): Promise<Array<{ id: string; name: s
     throw new Error("Failed to fetch regions");
   }
 
-  // Ensure response is valid and has 'regions' property
+  // Safely handle the JSON response and check for regions property
   const data: VultrRegionResponse = await response.json();
-
-  // Check if the 'regions' property exists
+  
+  // If the 'regions' property doesn't exist, throw an error
   if (!data || !data.regions) {
     throw new Error('Regions data is missing');
   }
