@@ -1,12 +1,21 @@
-import fetch from 'node-fetch';
+import fetch from 'node-fetch';  // 최신 fetch 사용법
 
-// Define a TypeScript interface for the API response
+// Define interfaces for API responses to ensure type safety
 interface VultrRegionResponse {
   regions: Array<{ id: string; name: string }>;
 }
 
+interface VultrPlanResponse {
+  plans: Array<{ id: string; name: string }>;
+}
+
+interface VultrOSResponse {
+  os: Array<{ id: string; name: string }>;
+}
+
 const VULTR_API_URL = "https://api.vultr.com/v2";
 
+// Create server - uses Vultr API
 export async function createServer(region: string, plan: string, os: string, additional_features: any) {
   const response = await fetch(`${VULTR_API_URL}/instances`, {
     method: "POST",
@@ -23,10 +32,15 @@ export async function createServer(region: string, plan: string, os: string, add
     }),
   });
 
+  if (!response.ok) {
+    throw new Error("Failed to create server");
+  }
+
   const data = await response.json();
   return data;
 }
 
+// Get list of servers - uses Vultr API
 export async function getServers() {
   const response = await fetch(`${VULTR_API_URL}/instances`, {
     method: "GET",
@@ -35,11 +49,15 @@ export async function getServers() {
     },
   });
 
+  if (!response.ok) {
+    throw new Error("Failed to fetch servers");
+  }
+
   const data = await response.json();
   return data;
 }
 
-// Update the return type to the defined interface
+// Get available regions - uses Vultr API
 export async function getAvailableRegions(): Promise<Array<{ id: string; name: string }>> {
   const response = await fetch(`${VULTR_API_URL}/regions`, {
     method: "GET",
@@ -48,17 +66,16 @@ export async function getAvailableRegions(): Promise<Array<{ id: string; name: s
     },
   });
 
-  // Check if response is valid and has 'regions' property
-  const data: VultrRegionResponse = await response.json();
-
-  if (!data.regions) {
-    throw new Error('Failed to fetch regions');
+  if (!response.ok) {
+    throw new Error("Failed to fetch regions");
   }
 
-  return data.regions;  // Accessing 'regions' safely after typing the response
+  const data: VultrRegionResponse = await response.json();
+  return data.regions;  // Safe access to 'regions'
 }
 
-export async function getPlans() {
+// Get available plans - uses Vultr API
+export async function getPlans(): Promise<Array<{ id: string; name: string }>> {
   const response = await fetch(`${VULTR_API_URL}/plans`, {
     method: "GET",
     headers: {
@@ -66,11 +83,16 @@ export async function getPlans() {
     },
   });
 
-  const data = await response.json();
-  return data.plans;
+  if (!response.ok) {
+    throw new Error("Failed to fetch plans");
+  }
+
+  const data: VultrPlanResponse = await response.json();
+  return data.plans;  // Safe access to 'plans'
 }
 
-export async function getOS() {
+// Get available OS - uses Vultr API
+export async function getOS(): Promise<Array<{ id: string; name: string }>> {
   const response = await fetch(`${VULTR_API_URL}/os`, {
     method: "GET",
     headers: {
@@ -78,6 +100,10 @@ export async function getOS() {
     },
   });
 
-  const data = await response.json();
-  return data.os;
+  if (!response.ok) {
+    throw new Error("Failed to fetch OS");
+  }
+
+  const data: VultrOSResponse = await response.json();
+  return data.os;  // Safe access to 'os'
 }
