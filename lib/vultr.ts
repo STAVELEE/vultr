@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';  // 최신 fetch 사용법
+import fetch from 'node-fetch';
 
 // Define interfaces for API responses to ensure type safety
 interface VultrRegionResponse {
@@ -70,8 +70,10 @@ export async function getAvailableRegions(): Promise<Array<{ id: string; name: s
     throw new Error("Failed to fetch regions");
   }
 
+  // Ensure response is valid and has 'regions' property
   const data: VultrRegionResponse = await response.json();
-  // Ensure 'regions' exists in the response
+
+  // Check if the 'regions' property exists
   if (!data || !data.regions) {
     throw new Error('Regions data is missing');
   }
