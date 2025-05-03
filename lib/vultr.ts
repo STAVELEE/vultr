@@ -1,11 +1,11 @@
 import fetch from 'node-fetch';
 
-const VULTR_API_URL = "https://api.vultr.com/v2";
-
 // Define a TypeScript interface for the API response
 interface VultrRegionResponse {
   regions: Array<{ id: string; name: string }>;
 }
+
+const VULTR_API_URL = "https://api.vultr.com/v2";
 
 export async function createServer(region: string, plan: string, os: string, additional_features: any) {
   const response = await fetch(`${VULTR_API_URL}/instances`, {
@@ -48,7 +48,13 @@ export async function getAvailableRegions(): Promise<Array<{ id: string; name: s
     },
   });
 
+  // Check if response is valid and has 'regions' property
   const data: VultrRegionResponse = await response.json();
+
+  if (!data.regions) {
+    throw new Error('Failed to fetch regions');
+  }
+
   return data.regions;  // Accessing 'regions' safely after typing the response
 }
 
