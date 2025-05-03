@@ -1,6 +1,11 @@
-import fetch from 'node-fetch';  // 최신 fetch 사용법
+import fetch from 'node-fetch';
 
 const VULTR_API_URL = "https://api.vultr.com/v2";
+
+// Define a TypeScript interface for the API response
+interface VultrRegionResponse {
+  regions: Array<{ id: string; name: string }>;
+}
 
 export async function createServer(region: string, plan: string, os: string, additional_features: any) {
   const response = await fetch(`${VULTR_API_URL}/instances`, {
@@ -34,15 +39,17 @@ export async function getServers() {
   return data;
 }
 
-export async function getAvailableRegions() {
+// Update the return type to the defined interface
+export async function getAvailableRegions(): Promise<Array<{ id: string; name: string }>> {
   const response = await fetch(`${VULTR_API_URL}/regions`, {
     method: "GET",
     headers: {
       "Authorization": `Bearer ${process.env.VULTR_API_KEY}`,
     },
   });
-  const data = await response.json();
-  return data.regions;
+
+  const data: VultrRegionResponse = await response.json();
+  return data.regions;  // Accessing 'regions' safely after typing the response
 }
 
 export async function getPlans() {
