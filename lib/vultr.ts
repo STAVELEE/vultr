@@ -33,7 +33,7 @@ export async function createServer(region: string, plan: string, os: string, add
   });
 
   if (!response.ok) {
-    throw new Error("Failed to create server");
+    throw new Error(`Failed to create server. Status: ${response.status}`);
   }
 
   const data = await response.json();
@@ -50,7 +50,7 @@ export async function getServers() {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch servers");
+    throw new Error(`Failed to fetch servers. Status: ${response.status}`);
   }
 
   const data = await response.json();
@@ -67,18 +67,17 @@ export async function getAvailableRegions(): Promise<Array<{ id: string; name: s
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch regions");
+    throw new Error(`Failed to fetch regions. Status: ${response.status}`);
   }
 
-  // Safely handle the JSON response and check for regions property
   const data: VultrRegionResponse = await response.json();
   
-  // If the 'regions' property doesn't exist, throw an error
-  if (!data || !data.regions) {
-    throw new Error('Regions data is missing');
+  // Ensure 'regions' is present in the response
+  if (!data || !data.regions || data.regions.length === 0) {
+    throw new Error('No regions data returned from Vultr');
   }
 
-  return data.regions;  // Safe access to 'regions'
+  return data.regions;
 }
 
 // Get available plans - uses Vultr API
@@ -91,11 +90,17 @@ export async function getPlans(): Promise<Array<{ id: string; name: string }>> {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch plans");
+    throw new Error(`Failed to fetch plans. Status: ${response.status}`);
   }
 
   const data: VultrPlanResponse = await response.json();
-  return data.plans;  // Safe access to 'plans'
+  
+  // Ensure plans data is available
+  if (!data || !data.plans || data.plans.length === 0) {
+    throw new Error('No plans data returned from Vultr');
+  }
+
+  return data.plans;
 }
 
 // Get available OS - uses Vultr API
@@ -108,9 +113,15 @@ export async function getOS(): Promise<Array<{ id: string; name: string }>> {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch OS");
+    throw new Error(`Failed to fetch OS. Status: ${response.status}`);
   }
 
   const data: VultrOSResponse = await response.json();
-  return data.os;  // Safe access to 'os'
+  
+  // Ensure OS data is available
+  if (!data || !data.os || data.os.length === 0) {
+    throw new Error('No OS data returned from Vultr');
+  }
+
+  return data.os;
 }
